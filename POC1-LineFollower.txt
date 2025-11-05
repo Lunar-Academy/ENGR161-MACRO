@@ -1,0 +1,80 @@
+import basehat
+import time
+from buildhat import Motor
+# from picarx import Picarx
+# import multiprocessing
+
+ultrasonicPin = 18
+lineFinderLeft = 26
+lineFinderRight = 24
+
+ultra = basehat.UltrasonicSensor(ultrasonicPin)
+lineLeft = basehat.LineFinder(lineFinderLeft)
+lineRight = basehat.LineFinder(lineFinderRight)
+
+button = basehat.Button(5)
+
+motorLeft = Motor('B')
+motorRight = Motor('A')
+
+adder = 0
+
+leftKp = 0.02
+leftKi = 0
+leftKd = 0
+leftWindup = 0
+
+rightKp = .02
+rightKi = 0
+rightKd = 0
+rightWindup = 0
+
+speed = 90
+
+start = False
+
+timeNow = time.time()
+
+try:
+    while True:
+        if button.value == 1:
+            time.sleep(1)            
+            break
+
+    while True:
+
+        # motorLeft.run_PID(Kp = leftKp, Ki = leftKi, Kd = leftKd, windup = leftWindup, speed = speed)
+        # motorRight.run_PID(Kp = rightKp, Ki = rightKi, Kd = rightKd, windup = rightWindup, speed = -speed)
+
+        if lineLeft.value == 0 and lineRight.value == 0:
+            if (time.time() - timeNow > .8):
+                motorLeft.pwm(.25)
+                motorRight.pwm(-.25)
+            else:
+                motorLeft.pwm(.15)
+                motorRight.pwm(-.15)
+
+        elif lineLeft.value == 1:
+            # while lineRight.value == 0:
+                timeNow = time.time()
+                motorLeft.pwm(-.35)
+                motorRight.pwm(-.35)
+
+        elif lineRight.value == 1:
+            # while lineLeft.value == 0:
+                timeNow = time.time()
+                motorLeft.pwm(.35)
+                motorRight.pwm(.35)
+        if button.value == 1:
+            motorLeft.stop()
+            motorRight.stop()
+            print("stopping")
+            break
+
+except Exception as e:
+    motorLeft.stop()
+    motorRight.stop()
+    print(e)
+
+
+
